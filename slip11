@@ -1,0 +1,126 @@
+#include <stdio.h>
+#define PI 3.14
+int main()
+{
+ float a,r;
+ printf("Enter radius");
+ scanf("%f",&r);
+ a=PI*r*r;
+ printf("Area of circle=%f",a);
+}
+
+yash@lenovo:~/slip11$ ./a.out
+Enter radius5
+Area of circle=78.500000
+
+
+#include <stdio.h>
+#include <string.h>
+int main()
+{
+ char s[]={"yashchavhan"},s1[]={"athomealone"};
+ int ch,n=0;
+ printf("String 1=%s\nString 2=%s\n",s,s1);
+ printf("MENU\n1.Compare\n2.Copy\n");
+ printf("Enter your choice:");
+ scanf("%d",&ch);
+ switch(ch)
+ {
+ case 1: n=strcmp(s,s1);
+ if(n==0)
+ printf("Both strings are equal\n");
+ else if(n>0)
+ printf("First string %s is greater\n",s);
+ else if(n<0)
+ printf("Second string %s is greater\n",s1);
+ break;
+ case 2: strcpy(s,s1);
+ printf("Copied string:\nstr1=%s\nstr2=%s\n",s,s1);
+ break;
+ }
+}
+
+
+
+RDBMS
+
+slip11=# create table customer(cno int primary key,cname varchar(20),city varchar(30));
+CREATE TABLE
+slip11=# insert into customer values(1,'Yash','Shrirampur');
+INSERT 0 1
+slip11=# insert into customer values(2,'Kartik','Belapur');
+INSERT 0 1
+slip11=# select * from customer;
+ cno | cname | city 
+-----+--------+------------
+ 1 | Yash | Shrirampur
+ 2 | Kartik | Belapur
+(2 rows)
+slip11=# create table account(accno int primary key,acc_type varchar(10),opening_date 
+date,balance money,c_no int references customer(cno));
+CREATE TABLE
+slip11=# insert into account values(110,'saving','2018-08-16',500,1);
+INSERT 0 1
+slip11=# insert into account values(111,'saving','2015-06-25',500,2);
+INSERT 0 1
+slip11=# insert into account values(112,'current','2017-06-25',5000,2);
+INSERT 0 1
+slip11=# insert into account values(113,'current','2016-10-12',8000,1);
+INSERT 0 1
+slip11=# select * from account;
+ accno | acc_type | opening_date | balance | c_no 
+-------+----------+--------------+-----------+------
+ 110 | saving | 2018-08-16 | 500.00 | 1 ₹
+ 111 | saving | 2015-06-25 | 500.00 | 2 ₹
+ 112 | current | 2017-06-25 | 5,000.00 | 2 ₹
+ 113 | current | 2016-10-12 | 8,000.00 | 1 ₹
+(4 rows)
+
+
+slip11=# create or replace function f1() returns void
+slip11-# as
+slip11-# $$
+slip11$# declare
+slip11$# ans account%rowtype;
+slip11$# begin
+slip11$# select * into ans from account where opening_date<'03-07-2015';
+slip11$# raise notice'Account no=%',ans.accno;
+slip11$# raise notice'Account type=%',ans.acc_type;
+slip11$# raise notice'Opening date=%',ans.opening_date;
+slip11$# raise notice'Balance=%',ans.balance;
+slip11$# end;
+slip11$# $$
+slip11-# language plpgsql;
+CREATE FUNCTION
+slip11=# select f1();
+NOTICE: Account no=111
+NOTICE: Account type=saving
+NOTICE: Opening date=2015-06-25
+NOTICE: Balance= 500.00 ₹
+
+
+slip11=# create or replace function fun() returns void
+slip11-# as
+slip11-# $$
+slip11$# declare
+slip11$# c cursor for select * from customer,account where customer.cno=account.c_no
+slip11$# AND customer.city='Shrirampur';
+slip11$# r customer%rowtype;
+slip11$# begin
+slip11$# for r in c
+slip11$# loop
+slip11$# raise notice'Customer no=%',r.cno;
+slip11$# raise notice'Name=%',r.cname;
+slip11$# raise notice'City=%',r.city;
+slip11$# end loop;
+slip11$# end;
+slip11$# $$
+slip11-# language plpgsql;
+CREATE FUNCTION
+slip11=# select fun();
+NOTICE: Customer no=1
+NOTICE: Name=Yash
+NOTICE: City=Shrirampur
+NOTICE: Customer no=1
+NOTICE: Name=Yash
+NOTICE: City=Shrirampur
